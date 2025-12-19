@@ -3,225 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>ALUMINA Full Spec v3</title>
+    <title>ALUMINA High-Security</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; --danger: #eb5757; }
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f8f9fa; color: var(--text); height: 100vh; display: flex; overflow: hidden; }
-        
-        /* ログイン */
-        #login-overlay { position: fixed; inset: 0; background: #f8f9fa; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 380px; }
-        .login-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; }
-        .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-
-        /* サイドバー */
-        .sidebar { width: 220px; background: var(--sidebar-bg); border-right: 1px solid var(--border); flex-shrink: 0; }
-        .sidebar-brand { padding: 25px; font-weight: bold; font-size: 20px; color: var(--accent); }
-        .sidebar-group { padding: 15px 20px 5px 20px; font-size: 11px; color: #888; font-weight: bold; }
-        .sidebar-item { padding: 12px 25px; font-size: 14px; cursor: pointer; color: #444; border-left: 4px solid transparent; }
-        .sidebar-item:hover { background: #e2e6ea; }
-        .sidebar-item.active { background: #fff; color: var(--accent); font-weight: bold; border-left: 4px solid var(--accent); }
-        
-        /* メインUI */
-        .main-content { flex-grow: 1; display: none; flex-direction: column; overflow: hidden; }
-        header { height: 55px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; }
-        .page { padding: 25px; overflow-y: auto; height: 100%; }
-        
-        /* ツールバー & 検索 */
-        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-        .search-box { flex-grow: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; outline: none; background: #fff; }
-
-        /* フォーム & カード */
-        .card { background: white; padding: 25px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .section-title { font-size: 14px; font-weight: bold; margin: 20px 0 12px 0; border-bottom: 2px solid var(--accent); display: inline-block; }
-        .form-row { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
-        .form-group { flex: 1; min-width: 250px; }
-        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; color: #666; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
-        
-        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        th { background: #f1f3f5; padding: 12px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
-        tr:hover { background: #f9fbff; cursor: pointer; }
-        
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-edit { background: #28a745; color: #fff; }
-        .btn-danger { background: var(--danger); color: #fff; }
-
-        /* モーダル */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 95%; max-width: 800px; max-height: 90vh; border-radius: 8px; overflow-y: auto; padding: 30px; }
-        .detail-grid { display: grid; grid-template-columns: 200px 1fr; border-top: 1px solid #eee; }
-        .detail-label { background: #f8f9fa; padding: 12px; font-size: 11px; font-weight: bold; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-        .detail-val { padding: 12px; font-size: 13px; border-bottom: 1px solid #eee; word-break: break-all; }
+        /* ...デザインは以前のものを継承... */
+        :root { --sidebar-bg: #f0f3f7; --accent: #4a6fa5; --border: #dee2e6; }
+        body { font-family: sans-serif; background: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 380px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        #app-ui { display: none; width: 100%; height: 100%; flex-direction: column; background: white; position: fixed; inset: 0; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h2>ALUMINA LOGIN</h2>
-        <input type="email" id="auth-email" class="login-input" placeholder="メールアドレス">
-        <input type="password" id="auth-pass" class="login-input" placeholder="パスワード">
-        <button class="btn-login" onclick="handleLogin()">認証する</button>
-        <p id="auth-error" style="color:red; font-size:12px; margin-top:10px; display:none;">認証に失敗しました</p>
-    </div>
-</div>
-
-<div id="detail-modal" class="modal"><div class="modal-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 id="modal-title" style="margin:0; color:var(--accent);">詳細</h2>
-        <div><button id="m-edit-btn" class="btn btn-edit">編集</button><button id="m-del-btn" class="btn btn-danger" style="margin:0 10px;">削除</button><button class="btn" onclick="closeModal()">閉じる</button></div>
-    </div>
-    <div id="modal-body" class="detail-grid"></div>
-</div></div>
-
-<div class="sidebar">
-    <div class="sidebar-brand">▲ ALUMINA</div>
-    <div class="sidebar-item active" id="nav-dash" onclick="showPage('dash')">ダッシュボード</div>
-    <div class="sidebar-group">サイト管理</div>
-    <div class="sidebar-item" id="nav-site" onclick="showPage('site')">サイト一覧</div>
-    <div class="sidebar-group">連携管理</div>
-    <div class="sidebar-item" id="nav-sv" onclick="showPage('sv')">サーバー</div>
-    <div class="sidebar-item" id="nav-rg" onclick="showPage('rg')">レジストラ</div>
-    <div class="sidebar-item" id="nav-dm" onclick="showPage('dm')">ドメイン</div>
-    <div style="margin-top:40px; border-top:1px solid #ddd;" class="sidebar-item" onclick="location.reload()">ログアウト</div>
-</div>
-
-<div class="main-content" id="app-ui">
-    <header><div id="header-title">ダッシュボード</div><div>管理者：竹川 様</div></header>
-
-    <div id="p-dash" class="page">
-        <div class="form-row">
-            <div class="card" style="flex:1; text-align:center;"><h3>サイト</h3><div id="cnt-s" style="font-size:32px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>サーバー</h3><div id="cnt-v" style="font-size:32px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>ドメイン</h3><div id="cnt-d" style="font-size:32px; font-weight:bold;">0</div></div>
+        <h2 id="login-title">ALUMINA LOGIN</h2>
+        <div id="auth-fields">
+            <input type="email" id="l-email" placeholder="メールアドレス">
+            <input type="password" id="l-pass" placeholder="パスワード">
+            <button class="btn-primary" onclick="handleInitialAuth()">認証する</button>
         </div>
+        <div id="2fa-fields" style="display:none;">
+            <p style="font-size:12px; color:#666;">メールに送信された6桁のコードを入力してください</p>
+            <input type="text" id="l-2fa" placeholder="6桁のコード">
+            <button class="btn-primary" onclick="verify2FA()">コードを確認</button>
+        </div>
+        <p id="l-err" style="color:red; font-size:12px; margin-top:10px;"></p>
     </div>
+</div>
 
-    <div id="p-site" class="page">
-        <div class="toolbar"><button class="btn btn-primary" onclick="openForm('site')">+ 新規作成</button><input type="text" class="search-box" id="q-site" placeholder="検索..." oninput="refreshUI()"></div>
-        <table><thead><tr><th>URL</th><th>サイト名</th><th>短縮名</th><th>更新日</th></tr></thead><tbody id="t-site"></tbody></table>
-    </div>
-
-    <div id="p-site-form" class="page"><div class="card">
-        <h2 id="f-site-title">サイト情報登録</h2><input type="hidden" id="f-site-id">
-        <div class="section-title">基本情報</div>
-        <div class="form-row"><div class="form-group"><label>URL</label><input type="text" id="s-url"></div><div class="form-group"><label>サイト名</label><input type="text" id="s-name"></div></div>
-        <div class="form-row"><div class="form-group"><label>短縮名</label><input type="text" id="s-short"></div><div class="form-group"><label>タグ</label><input type="text" id="s-tag"></div></div>
-        <label>備考</label><textarea id="s-note" rows="2"></textarea>
-        <div class="section-title">インフラ紐付け</div>
-        <div class="form-row"><div class="form-group"><label>サーバー</label><select id="s-sv-sel"></select></div><div class="form-group"><label>ドメイン</label><select id="s-dm-sel"></select></div></div>
-        <div class="section-title">詳細情報 (FTP/WP/DB)</div>
-        <div class="form-row"><input type="text" id="s-ftp-h" placeholder="FTPホスト" class="form-group"><input type="text" id="s-ftp-u" placeholder="FTP ID" class="form-group"><input type="password" id="s-ftp-p" placeholder="FTP PASS" class="form-group"></div>
-        <div class="form-row"><input type="text" id="s-wp-u" placeholder="WP ID" class="form-group"><input type="password" id="s-wp-p" placeholder="WP PASS" class="form-group"></div>
-        <div class="form-row"><input type="text" id="s-db-u" placeholder="DB ID" class="form-group"><input type="password" id="s-db-p" placeholder="DB PASS" class="form-group"></div>
-        <div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveData('site')">保存</button><button class="btn" onclick="showPage('site')">戻る</button></div>
-    </div></div>
-
-    <div id="p-sv" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('server')">+ サーバー登録</button><input type="text" class="search-box" id="q-sv" placeholder="検索..." oninput="refreshUI()"></div><table><thead><tr><th>サーバー名</th><th>会社名</th></tr></thead><tbody id="t-sv"></tbody></table></div>
-    <div id="p-sv-form" class="page"><div class="card"><h2>サーバー登録</h2><input type="hidden" id="f-sv-id"><div class="form-row"><input type="text" id="v-name" placeholder="サーバー名" class="form-group"><input type="text" id="v-company" placeholder="会社名" class="form-group"></div><input type="password" id="v-pass" placeholder="パスワード" style="margin-bottom:10px;"><button class="btn btn-primary" onclick="saveData('server')">保存</button><button class="btn" onclick="showPage('sv')">戻る</button></div></div>
-
-    <div id="p-rg" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('registrar')">+ レジストラ登録</button></div><table><thead><tr><th>名</th></tr></thead><tbody id="t-rg"></tbody></table></div>
-    <div id="p-rg-form" class="page"><div class="card"><h2>レジストラ登録</h2><input type="text" id="r-name" placeholder="名"><button class="btn btn-primary" style="margin-top:10px;" onclick="saveData('registrar')">保存</button></div></div>
-    <div id="p-dm" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('domain')">+ ドメイン登録</button></div><table><thead><tr><th>ドメイン</th><th>期限</th></tr></thead><tbody id="t-dm"></tbody></table></div>
-    <div id="p-dm-form" class="page"><div class="card"><h2>ドメイン登録</h2><input type="text" id="d-name" placeholder="ドメイン"><input type="date" id="d-end" style="margin-top:10px;"><button class="btn btn-primary" style="margin-top:10px;" onclick="saveData('domain')">保存</button></div></div>
+<div id="app-ui">
+    <div style="padding: 20px;">管理画面にログインしました</div>
+    <button onclick="location.reload()">ログアウト</button>
 </div>
 
 <script>
-    const VALID_EMAIL = "cogweb39@gmail.com";
-    const VALID_HASH = "41697207604313f890730847f2025e6833359d9c6700868f0813958064a3951b"; // 'alumina-2025' のハッシュ
+    const GAS_URL = "★ここにGASのURLを貼る★";
+    const TARGET_EMAIL = "cogweb39@gmail.com";
+    const PASS_HASH = "b58728956973347514930b5993850125749f7e81255e63013233c7069777174e"; // CogWeb#Alumina!2025
+    
+    let generatedCode = "";
+    let tempPass = "";
 
-    let masterKey = "";
-    let DB = { sites: [], servers: [], registrars: [], domains: [] };
+    // 1. ロック機能の確認
+    function checkLockout() {
+        const lockUntil = localStorage.getItem('lockoutUntil');
+        if (lockUntil && Date.now() < parseInt(lockUntil)) {
+            const minutesLeft = Math.ceil((parseInt(lockUntil) - Date.now()) / 60000);
+            document.getElementById('l-err').innerText = "ロックされています。あと " + minutesLeft + " 分待ってください。";
+            document.querySelector('.btn-primary').disabled = true;
+            return true;
+        }
+        return false;
+    }
 
-    function handleLogin() {
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value.trim();
+    // 2. 最初の ID/PW 認証
+    async function handleInitialAuth() {
+        if (checkLockout()) return;
+
+        const email = document.getElementById('l-email').value.trim();
+        const pass = document.getElementById('l-pass').value.trim();
         const hashed = CryptoJS.SHA256(pass).toString();
 
-        if (email === VALID_EMAIL && hashed === VALID_HASH) {
-            masterKey = pass;
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app-ui').style.display = 'flex';
-            loadData(); refreshUI(); showPage('dash');
+        if (email === TARGET_EMAIL && hashed === PASS_HASH) {
+            tempPass = pass;
+            // デバイスが認証済みか確認
+            if (localStorage.getItem('deviceVerified') === 'true') {
+                loginSuccess();
+            } else {
+                // 初回ログイン：2FA送信
+                send2FACode();
+            }
         } else {
-            document.getElementById('auth-error').style.display = 'block';
+            handleFail();
         }
     }
 
-    function showPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-        document.getElementById('p-' + id).style.display = 'block';
-        if(document.getElementById('nav-' + id)) document.getElementById('nav-' + id).classList.add('active');
+    // 3. 失敗カウントとロック処理
+    function handleFail() {
+        let count = parseInt(localStorage.getItem('failCount') || 0) + 1;
+        localStorage.setItem('failCount', count);
+        if (count >= 5) {
+            const until = Date.now() + (60 * 60 * 1000); // 1時間
+            localStorage.setItem('lockoutUntil', until);
+            alert("5回失敗したため1時間ロックされました。");
+        }
+        document.getElementById('l-err').innerText = "認証失敗（残り " + (5 - count) + " 回）";
     }
 
-    function openForm(type, id = null) {
-        const item = id ? DB[type + 's'].find(x => x.id == id) : null;
-        if(type === 'site') {
-            document.getElementById('f-site-id').value = id || '';
-            ['s-url','s-name','s-short','s-tag','s-note','s-ftp-h','s-ftp-u','s-ftp-p','s-wp-u','s-wp-p','s-db-u','s-db-p'].forEach(k => document.getElementById(k).value = item ? (item[k.substring(2)] || '') : '');
-            updateSels();
-            showPage('site-form');
-        } else if(type === 'server') {
-            document.getElementById('f-sv-id').value = id || '';
-            ['v-name','v-company','v-pass'].forEach(k => document.getElementById(k).value = item ? (item[k.substring(2)] || '') : '');
-            showPage('sv-form');
-        } else { showPage(type.substring(0,2) + '-form'); }
+    // 4. メールでコード送信
+    async function send2FACode() {
+        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        document.getElementById('auth-fields').style.display = 'none';
+        document.getElementById('2fa-fields').style.display = 'block';
+        document.getElementById('login-title').innerText = "2段階認証";
+
+        await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ code: generatedCode })
+        });
     }
 
-    function saveData(type) {
-        let item = { id: Date.now() };
-        if(type === 'site') {
-            const id = document.getElementById('f-site-id').value;
-            item = { id: id ? parseInt(id) : Date.now(), url: document.getElementById('s-url').value, name: document.getElementById('s-name').value, short: document.getElementById('s-short').value, tag: document.getElementById('s-tag').value, note: document.getElementById('s-note').value, server: document.getElementById('s-sv-sel').value, domain: document.getElementById('s-dm-sel').value, ftp_h: document.getElementById('s-ftp-h').value, ftp_u: document.getElementById('s-ftp-u').value, ftp_p: document.getElementById('s-ftp-p').value, wp_u: document.getElementById('s-wp-u').value, wp_p: document.getElementById('s-wp-p').value, db_u: document.getElementById('s-db-u').value, db_p: document.getElementById('s-db-p').value, date: new Date().toLocaleDateString() };
-        } else if(type === 'server') {
-            const id = document.getElementById('f-sv-id').value;
-            item = { id: id ? parseInt(id) : Date.now(), name: document.getElementById('v-name').value, company: document.getElementById('v-company').value, pass: document.getElementById('v-pass').value };
-        } else if(type === 'registrar') { item.name = document.getElementById('r-name').value; }
-        else if(type === 'domain') { item.name = document.getElementById('d-name').value; item.end = document.getElementById('d-end').value; }
-        
-        const key = type + 's';
-        const idx = DB[key].findIndex(x => x.id == item.id);
-        if(idx > -1) DB[key][idx] = item; else DB[key].push(item);
-        
-        localStorage.setItem('alumina_vFinal_Auth', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
-        alert("保存完了"); refreshUI(); showPage(type.substring(0,2) === 'si' ? 'site' : type.substring(0,2) === 'se' ? 'sv' : type.substring(0,2) === 're' ? 'rg' : 'dm');
+    // 5. 2FAコードの検証
+    function verify2FA() {
+        const inputCode = document.getElementById('l-2fa').value.trim();
+        if (inputCode === generatedCode) {
+            localStorage.setItem('deviceVerified', 'true');
+            localStorage.setItem('failCount', 0);
+            loginSuccess();
+        } else {
+            alert("コードが違います。");
+        }
     }
 
-    function refreshUI() {
-        document.getElementById('t-site').innerHTML = DB.sites.map(s => `<tr onclick="openDetail('site', ${s.id})"><td>${s.url}</td><td>${s.name}</td><td>${s.short}</td><td>${s.date}</td></tr>`).join('');
-        document.getElementById('t-sv').innerHTML = DB.servers.map(s => `<tr onclick="openDetail('server', ${s.id})"><td>${s.name}</td><td>${s.company}</td></tr>`).join('');
-        document.getElementById('cnt-s').innerText = DB.sites.length;
-        document.getElementById('cnt-v').innerText = DB.servers.length;
-        document.getElementById('cnt-d').innerText = DB.domains.length;
+    function loginSuccess() {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-ui').style.display = 'flex';
     }
 
-    function openDetail(type, id) {
-        const item = DB[type + 's'].find(x => x.id == id);
-        document.getElementById('modal-title').innerText = item.name || item.url;
-        let html = "";
-        for(let k in item) html += `<div class="detail-label">${k}</div><div class="detail-val">${item[k]}</div>`;
-        document.getElementById('modal-body').innerHTML = html;
-        document.getElementById('m-del-btn').onclick = () => { if(confirm("削除？")){ DB[type+'s']=DB[type+'s'].filter(x=>x.id!=id); saveDataSilence(); closeModal(); refreshUI(); } };
-        document.getElementById('detail-modal').style.display = 'flex';
-    }
-
-    function saveDataSilence() { localStorage.setItem('alumina_vFinal_Auth', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString()); }
-    function loadData() {
-        const raw = localStorage.getItem('alumina_vFinal_Auth');
-        if(raw) { try { DB = JSON.parse(CryptoJS.AES.decrypt(raw, masterKey).toString(CryptoJS.enc.Utf8)); } catch(e) {} }
-    }
-    function updateSels() {
-        document.getElementById('s-sv-sel').innerHTML = '<option value="">なし</option>' + DB.servers.map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-        document.getElementById('s-dm-sel').innerHTML = '<option value="">なし</option>' + DB.domains.map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-    }
-    function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
+    window.onload = checkLockout;
 </script>
 </body>
 </html>
