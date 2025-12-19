@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>ALUMINA Full Management</title>
+    <title>ALUMINA Full Spec</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; --bg-main: #f8f9fa; }
+        :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; }
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg-main); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: #f8f9fa; color: var(--text); height: 100vh; display: flex; overflow: hidden; }
         
-        /* ログイン画面 */
-        #login-overlay { position: fixed; inset: 0; background: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        /* ログイン */
+        #login-overlay { position: fixed; inset: 0; background: #f8f9fa; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 360px; }
         
         /* サイドバー */
-        .sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); flex-shrink: 0; }
-        .sidebar-brand { padding: 25px; font-weight: bold; font-size: 22px; color: var(--accent); }
+        .sidebar { width: 220px; background: var(--sidebar-bg); border-right: 1px solid var(--border); flex-shrink: 0; }
+        .sidebar-brand { padding: 25px; font-weight: bold; font-size: 20px; color: var(--accent); }
         .sidebar-group { padding: 15px 20px 5px 20px; font-size: 11px; color: #888; font-weight: bold; }
         .sidebar-item { padding: 12px 25px; font-size: 14px; cursor: pointer; color: #444; }
         .sidebar-item:hover { background: #e2e6ea; }
@@ -25,190 +25,172 @@
         
         /* メイン */
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
-        header { height: 50px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; font-size: 13px; }
+        header { height: 55px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; }
         .page { padding: 25px; overflow-y: auto; display: none; height: 100%; }
         .active-page { display: block; }
 
         /* UI部品 */
         .card { background: white; padding: 25px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .section-title { font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; color: var(--accent); border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 3px; }
+        .section-title { font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; color: #333; border-bottom: 2px solid var(--accent); display: inline-block; }
         .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .form-group { flex: 1; }
-        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #666; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; color: #666; }
+        input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
         
-        table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); }
-        th { background: #f1f3f5; padding: 12px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* テーブル */
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th { background: #f1f3f5; padding: 10px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         tr:hover { background: #f9fbff; cursor: pointer; }
-        .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .btn-primary { background: var(--accent); color: #fff; }
+        .btn-edit { background: #28a745; color: #fff; margin-right: 5px; }
+
+        /* タグ */
+        .tag-box { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .tag-chip { background: #e2f0ff; color: #007bff; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
 
         /* 詳細モーダル */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 700px; max-height: 85vh; border-radius: 8px; overflow-y: auto; padding: 35px; }
-        .detail-item { display: flex; border-bottom: 1px solid #f0f0f0; padding: 10px 0; font-size: 13px; }
-        .detail-label { width: 180px; color: #888; font-weight: bold; flex-shrink: 0; }
-        .detail-value { flex-grow: 1; word-break: break-all; }
+        .modal-content { background: white; width: 95%; max-width: 750px; max-height: 90vh; border-radius: 8px; overflow-y: auto; padding: 30px; }
+        .detail-grid { display: grid; grid-template-columns: 180px 1fr; border-top: 1px solid #eee; }
+        .detail-label { background: #f8f9fa; padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
+        .detail-val { padding: 10px; font-size: 13px; border-bottom: 1px solid #eee; word-break: break-all; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h2>ALUMINA</h2>
+        <h2 style="color:var(--accent)">ALUMINA</h2>
         <input type="password" id="master-key" placeholder="マスターパスワード">
-        <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="unlock()">ログイン</button>
+        <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="unlock()">ログイン</button>
     </div>
 </div>
 
 <div id="detail-modal" class="modal">
     <div class="modal-content">
-        <h2 id="modal-title" style="margin-top:0; color:var(--accent);">詳細</h2>
-        <div id="modal-body"></div>
-        <div style="margin-top:25px; text-align:right;"><button class="btn" onclick="closeModal()">閉じる</button></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 id="modal-title" style="margin:0; color:var(--accent);">詳細情報</h2>
+            <div>
+                <button id="modal-edit-btn" class="btn btn-edit">編集する</button>
+                <button class="btn" onclick="closeModal()">閉じる</button>
+            </div>
+        </div>
+        <div id="modal-body" class="detail-grid"></div>
     </div>
 </div>
 
 <div class="sidebar">
     <div class="sidebar-brand">▲ ALUMINA</div>
-    <div class="sidebar-item active" id="m-dashboard" onclick="showPage('dashboard-page')">ダッシュボード</div>
+    <div class="sidebar-item active" id="m-dash" onclick="showPage('dash-page')">ダッシュボード</div>
     <div class="sidebar-group">サイト管理</div>
-    <div class="sidebar-item" id="m-site-list" onclick="showPage('site-list-page')">サイト一覧</div>
+    <div class="sidebar-item" id="m-site" onclick="showPage('site-page')">サイト一覧</div>
     <div class="sidebar-group">連携管理</div>
-    <div class="sidebar-item" id="m-server-list" onclick="showPage('server-list-page')">サーバー</div>
-    <div class="sidebar-item" id="m-reg-list" onclick="showPage('reg-list-page')">レジストラ</div>
-    <div class="sidebar-item" id="m-dom-list" onclick="showPage('dom-list-page')">ドメイン</div>
-    <div style="margin-top:50px; border-top:1px solid #ddd;" class="sidebar-item" onclick="location.reload()">ログアウト</div>
+    <div class="sidebar-item" id="m-sv" onclick="showPage('sv-page')">サーバー</div>
+    <div class="sidebar-item" id="m-rg" onclick="showPage('rg-page')">レジストラ</div>
+    <div class="sidebar-item" id="m-dm" onclick="showPage('dm-page')">ドメイン</div>
+    <div style="margin-top:40px; border-top:1px solid #ddd;" class="sidebar-item" onclick="location.reload()">ログアウト</div>
 </div>
 
 <div class="main-content">
-    <header><div id="page-title">ダッシュボード</div><div>管理者：竹川 様</div></header>
+    <header><div id="page-title">ダッシュボード</div><div style="font-size:12px; color:#888;">管理者：竹川 様</div></header>
 
-    <div id="dashboard-page" class="page active-page">
+    <div id="dash-page" class="page active-page">
         <div class="form-row">
-            <div class="card" style="flex:1; text-align:center;"><h3>サイト数</h3><div id="count-site" style="font-size:24px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>サーバー数</h3><div id="count-sv" style="font-size:24px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>ドメイン数</h3><div id="count-dm" style="font-size:24px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>サイト</h3><div id="cnt-s" style="font-size:32px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>サーバー</h3><div id="cnt-v" style="font-size:32px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>ドメイン</h3><div id="cnt-d" style="font-size:32px; font-weight:bold;">0</div></div>
         </div>
     </div>
 
-    <div id="site-list-page" class="page">
-        <div style="margin-bottom:15px; display:flex; justify-content:space-between;">
-            <button class="btn btn-primary" onclick="showPage('site-add-page')">+ 新規サイト登録</button>
-        </div>
+    <div id="site-page" class="page">
+        <div style="margin-bottom:15px;"><button class="btn btn-primary" onclick="openEntry('site')">+ 新規作成</button></div>
         <table>
             <thead><tr><th>URL</th><th>サイト名</th><th>短縮名</th><th>備考</th></tr></thead>
             <tbody id="site-tbody"></tbody>
         </table>
     </div>
 
-    <div id="site-add-page" class="page">
+    <div id="site-form-page" class="page">
         <div class="card">
-            <div style="display:flex; justify-content:space-between;"><h2>サイト登録</h2><button class="btn btn-primary" onclick="saveData('site')">登録する</button></div>
+            <h2 id="site-form-title">サイト登録</h2>
+            <input type="hidden" id="f-id">
             
             <div class="section-title">サイト情報</div>
             <div class="form-row">
-                <div class="form-group"><label>URL (必須)</label><input type="text" id="s-url"></div>
-                <div class="form-group"><label>サイト名</label><input type="text" id="s-name"></div>
+                <div class="form-group"><label>URL (必須)</label><input type="text" id="f-url"></div>
+                <div class="form-group"><label>サイト名</label>
+                    <input type="text" id="f-name">
+                    <label style="display:inline; font-weight:normal;"><input type="checkbox" style="width:auto;"> 自動取得</label>
+                </div>
             </div>
             <div class="form-row">
-                <div class="form-group"><label>短縮名</label><input type="text" id="s-short"></div>
-                <div class="form-group"><label>タグ（Enterで追加）</label><input type="text" id="s-tag" placeholder="例: 10月, HTML"></div>
+                <div class="form-group"><label>短縮名</label><input type="text" id="f-short"></div>
+                <div class="form-group"><label>タグ（Enterで確定）</label><input type="text" id="f-tag-in"><div id="f-tags" class="tag-box"></div></div>
             </div>
-            <label>備考</label><textarea id="s-note" rows="2"></textarea>
+            <label>備考</label><textarea id="f-note" rows="2"></textarea>
 
-            <div class="section-title">サーバー情報紐付け</div>
-            <select id="s-sv-sel" style="margin-bottom:15px;"></select>
+            <div class="section-title">サーバー情報</div>
+            <select id="f-sv-sel"></select>
 
             <div class="section-title">FTP情報</div>
             <div class="form-row">
-                <div class="form-group"><label>ホスト</label><input type="text" id="s-ftp-h"></div>
-                <div class="form-group"><label>ユーザー</label><input type="text" id="s-ftp-u"></div>
-                <div class="form-group"><label>パスワード</label><input type="password" id="s-ftp-p"></div>
-                <div class="form-group"><label>パス</label><input type="text" id="s-ftp-path"></div>
+                <div class="form-group"><label>ホスト</label><input type="text" id="f-ftp-h"></div>
+                <div class="form-group"><label>ログインID</label><input type="text" id="f-ftp-u"></div>
+                <div class="form-group"><label>パスワード</label><input type="password" id="f-ftp-p"></div>
+                <div class="form-group"><label>ディレクトリパス</label><input type="text" id="f-ftp-path"></div>
             </div>
 
             <div class="section-title">ワードプレス情報</div>
             <div class="form-row">
-                <div class="form-group"><label>ログインURL</label><input type="text" id="s-wp-url"></div>
-                <div class="form-group"><label>ID</label><input type="text" id="s-wp-u"></div>
-                <div class="form-group"><label>PASS</label><input type="password" id="s-wp-p"></div>
+                <div class="form-group"><label>ログインURL</label><input type="text" id="f-wp-url"></div>
+                <div class="form-group"><label>ログインID</label><input type="text" id="f-wp-u"></div>
+                <div class="form-group"><label>ログインパスワード</label><input type="password" id="f-wp-p"></div>
             </div>
 
             <div class="section-title">データベース情報</div>
             <div class="form-row">
-                <div class="form-group"><label>DBログインURL</label><input type="text" id="s-db-url"></div>
-                <div class="form-group"><label>DB ID</label><input type="text" id="s-db-u"></div>
-                <div class="form-group"><label>DB PASS</label><input type="password" id="s-db-p"></div>
+                <div class="form-group"><label>DBログインURL</label><input type="text" id="f-db-url"></div>
+                <div class="form-group"><label>DBログインID</label><input type="text" id="f-db-u"></div>
+                <div class="form-group"><label>DBログインパスワード</label><input type="password" id="f-db-p"></div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveSite()">保存する</button>
+                <button class="btn" onclick="showPage('site-page')">戻る</button>
             </div>
         </div>
     </div>
 
-    <div id="server-list-page" class="page">
-        <button class="btn btn-primary" onclick="showPage('server-add-page')" style="margin-bottom:15px;">+ サーバー登録</button>
-        <table><thead><tr><th>サーバー名</th><th>会社名</th><th>プラン</th><th>ユーザーID</th></tr></thead><tbody id="sv-tbody"></tbody></table>
-    </div>
-    <div id="server-add-page" class="page">
-        <div class="card"><h2>サーバー登録</h2>
-            <div class="form-row">
-                <input type="text" id="sv-n" placeholder="サーバー名" class="form-group">
-                <input type="text" id="sv-c" placeholder="会社名" class="form-group">
-            </div>
-            <input type="text" id="sv-u" placeholder="ログインID" style="margin-bottom:10px;">
-            <input type="password" id="sv-p" placeholder="パスワード" style="margin-bottom:10px;">
-            <button class="btn btn-primary" onclick="saveData('server')">保存</button>
-        </div>
-    </div>
+    <div id="sv-page" class="page"><h3>サーバー一覧</h3><tbody id="sv-tbody"></tbody>(同様に構築)</div>
+    <div id="rg-page" class="page"><h3>レジストラ一覧</h3></div>
+    <div id="dm-page" class="page"><h3>ドメイン一覧</h3></div>
 
-    <div id="reg-list-page" class="page">
-        <button class="btn btn-primary" onclick="showPage('reg-add-page')" style="margin-bottom:15px;">+ 登録</button>
-        <table><thead><tr><th>名前</th><th>ログインURL</th><th>ユーザー</th></tr></thead><tbody id="reg-tbody"></tbody></table>
-    </div>
-    <div id="reg-add-page" class="page">
-        <div class="card"><h2>レジストラ登録</h2>
-            <input type="text" id="rg-n" placeholder="名前" style="margin-bottom:10px;">
-            <input type="text" id="rg-u" placeholder="URL" style="margin-bottom:10px;">
-            <input type="text" id="rg-i" placeholder="ID" style="margin-bottom:10px;">
-            <input type="password" id="rg-p" placeholder="PASS" style="margin-bottom:10px;">
-            <button class="btn btn-primary" onclick="saveData('registrar')">保存</button>
-        </div>
-    </div>
-
-    <div id="dom-list-page" class="page">
-        <button class="btn btn-primary" onclick="showPage('dom-add-page')" style="margin-bottom:15px;">+ 登録</button>
-        <table><thead><tr><th>ドメイン</th><th>レジストラ</th><th>有効期限</th></tr></thead><tbody id="dom-tbody"></tbody></table>
-    </div>
-    <div id="dom-add-page" class="page">
-        <div class="card"><h2>ドメイン登録</h2>
-            <input type="text" id="dm-n" placeholder="ドメイン名" style="margin-bottom:10px;">
-            <input type="date" id="dm-e" style="margin-bottom:10px;">
-            <button class="btn btn-primary" onclick="saveData('domain')">保存</button>
-        </div>
-    </div>
 </div>
 
 <script>
     let masterKey = "";
     let DB = { sites: [], servers: [], registrars: [], domains: [] };
+    let currentTags = [];
 
-    const labels = {
-        url: 'サイトURL', name: 'サイト名', short: '短縮名', tags: 'タグ', note: '備考', server: '紐付けサーバー',
-        ftp_h: 'FTPホスト', ftp_u: 'FTPユーザー', ftp_p: 'FTPパスワード', ftp_path: 'FTPパス',
-        wp_url: 'WPログインURL', wp_u: 'WPユーザー', wp_p: 'WPパスワード',
-        db_url: 'DBログインURL', db_u: 'DBユーザー', db_p: 'DBパスワード',
-        company: 'サーバー会社', plan: 'プラン', user: 'ユーザーID', pass: 'パスワード', end: '有効期限', reg: 'レジストラ'
+    const fieldLabels = {
+        url: 'URL', name: 'サイト名', short: '短縮名', tags: 'タグ', note: '備考',
+        server: 'サーバー名', ftp_h: 'FTPホスト', ftp_u: 'FTPログインID', ftp_p: 'FTPパスワード', ftp_path: 'FTPディレクトリパス',
+        wp_url: 'WPログインURL', wp_u: 'WPログインID', wp_p: 'WPログインパスワード',
+        db_url: 'DBログインURL', db_u: 'DBログインID', db_p: 'DBログインパスワード'
     };
 
     function unlock() {
         masterKey = document.getElementById('master-key').value;
         if(!masterKey) return;
-        const data = localStorage.getItem('alumina_vFinal');
+        const data = localStorage.getItem('alumina_vUltimate');
         if(data) {
             try {
                 const bytes = CryptoJS.AES.decrypt(data, masterKey);
                 DB = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-            } catch(e) { alert("パスワード不一致"); return; }
+            } catch(e) { alert("パスワードが違います"); return; }
         }
         document.getElementById('login-overlay').style.display = 'none';
         refreshUI();
@@ -218,57 +200,115 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active-page');
-        const menuId = 'm-' + id.replace('-page', '').replace('-list', '').replace('-add', '');
-        const targetMenu = document.getElementById(menuId);
-        if(targetMenu) targetMenu.classList.add('active');
-        document.getElementById('page-title').innerText = targetMenu ? targetMenu.innerText : '登録画面';
+        const menuId = 'm-' + id.split('-')[0];
+        if(document.getElementById(menuId)) document.getElementById(menuId).classList.add('active');
+        document.getElementById('page-title').innerText = document.getElementById(menuId)?.innerText || '管理';
     }
 
-    function saveData(type) {
-        let item = { id: Date.now() };
+    function openEntry(type, id = null) {
         if(type === 'site') {
-            item = { ...item, url: document.getElementById('s-url').value, name: document.getElementById('s-name').value, short: document.getElementById('s-short').value, tags: document.getElementById('s-tag').value, note: document.getElementById('s-note').value, server: document.getElementById('s-sv-sel').value, ftp_h: document.getElementById('s-ftp-h').value, ftp_u: document.getElementById('s-ftp-u').value, ftp_p: document.getElementById('s-ftp-p').value, ftp_path: document.getElementById('s-ftp-path').value, wp_url: document.getElementById('s-wp-url').value, wp_u: document.getElementById('s-wp-u').value, wp_p: document.getElementById('s-wp-p').value, db_url: document.getElementById('s-db-url').value, db_u: document.getElementById('s-db-u').value, db_p: document.getElementById('s-db-p').value, date: new Date().toLocaleDateString() };
-            DB.sites.push(item);
-        } else if(type === 'server') {
-            item = { ...item, name: document.getElementById('sv-n').value, company: document.getElementById('sv-c').value, user: document.getElementById('sv-u').value, pass: document.getElementById('sv-p').value };
-            DB.servers.push(item);
-        } else if(type === 'registrar') {
-            item = { ...item, name: document.getElementById('rg-n').value, url: document.getElementById('rg-u').value, user: document.getElementById('rg-i').value, pass: document.getElementById('rg-p').value };
-            DB.registrars.push(item);
-        } else if(type === 'domain') {
-            item = { ...item, name: document.getElementById('dm-n').value, end: document.getElementById('dm-e').value };
-            DB.domains.push(item);
+            document.getElementById('f-id').value = id || '';
+            document.getElementById('site-form-title').innerText = id ? 'サイト情報編集' : 'サイト情報登録';
+            
+            if(id) {
+                const item = DB.sites.find(s => s.id === id);
+                document.getElementById('f-url').value = item.url;
+                document.getElementById('f-name').value = item.name;
+                document.getElementById('f-short').value = item.short;
+                document.getElementById('f-note').value = item.note;
+                document.getElementById('f-ftp-h').value = item.ftp_h;
+                document.getElementById('f-ftp-u').value = item.ftp_u;
+                document.getElementById('f-ftp-p').value = item.ftp_p;
+                document.getElementById('f-ftp-path').value = item.ftp_path;
+                document.getElementById('f-wp-url').value = item.wp_url;
+                document.getElementById('f-wp-u').value = item.wp_u;
+                document.getElementById('f-wp-p').value = item.wp_p;
+                document.getElementById('f-db-url').value = item.db_url;
+                document.getElementById('f-db-u').value = item.db_u;
+                document.getElementById('f-db-p').value = item.db_p;
+                currentTags = item.tags ? item.tags.split(',') : [];
+            } else {
+                document.querySelectorAll('#site-form-page input, #site-form-page textarea').forEach(el => el.value = '');
+                currentTags = [];
+            }
+            renderTags();
+            showPage('site-form-page');
         }
-        localStorage.setItem('alumina_vFinal', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
-        alert("保存完了");
+    }
+
+    // タグ入力
+    document.getElementById('f-tag-in').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim();
+            if(val && !currentTags.includes(val)) {
+                currentTags.push(val);
+                renderTags();
+            }
+            this.value = '';
+        }
+    });
+
+    function renderTags() {
+        document.getElementById('f-tags').innerHTML = currentTags.map(t => `<span class="tag-chip">${t}</span>`).join('');
+    }
+
+    function saveSite() {
+        const id = document.getElementById('f-id').value;
+        const siteData = {
+            id: id ? parseInt(id) : Date.now(),
+            url: document.getElementById('f-url').value,
+            name: document.getElementById('f-name').value,
+            short: document.getElementById('f-short').value,
+            note: document.getElementById('f-note').value,
+            tags: currentTags.join(','),
+            ftp_h: document.getElementById('f-ftp-h').value,
+            ftp_u: document.getElementById('f-ftp-u').value,
+            ftp_p: document.getElementById('f-ftp-p').value,
+            ftp_path: document.getElementById('f-ftp-path').value,
+            wp_url: document.getElementById('f-wp-url').value,
+            wp_u: document.getElementById('f-wp-u').value,
+            wp_p: document.getElementById('f-wp-p').value,
+            db_url: document.getElementById('f-db-url').value,
+            db_u: document.getElementById('f-db-u').value,
+            db_p: document.getElementById('f-db-p').value,
+            date: new Date().toLocaleDateString()
+        };
+
+        if(!siteData.url) return alert("URLは必須です");
+
+        if(id) {
+            const idx = DB.sites.findIndex(s => s.id === parseInt(id));
+            DB.sites[idx] = siteData;
+        } else {
+            DB.sites.push(siteData);
+        }
+
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString();
+        localStorage.setItem('alumina_vUltimate', encrypted);
+        alert("保存しました");
         refreshUI();
-        showPage(type + '-list-page');
+        showPage('site-page');
     }
 
     function refreshUI() {
-        document.getElementById('site-tbody').innerHTML = DB.sites.map(s => `<tr onclick="openDetail('site', ${s.id})"><td>${s.url}</td><td>${s.name}</td><td>${s.short || ''}</td><td>${s.note || ''}</td></tr>`).join('');
-        document.getElementById('sv-tbody').innerHTML = DB.servers.map(s => `<tr onclick="openDetail('server', ${s.id})"><td>${s.name}</td><td>${s.company}</td><td>-</td><td>${s.user}</td></tr>`).join('');
-        document.getElementById('reg-tbody').innerHTML = DB.registrars.map(r => `<tr onclick="openDetail('registrar', ${r.id})"><td>${r.name}</td><td>${r.url}</td><td>${r.user}</td></tr>`).join('');
-        document.getElementById('dom-tbody').innerHTML = DB.domains.map(d => `<tr onclick="openDetail('domain', ${d.id})"><td>${d.name}</td><td>-</td><td>${d.end}</td></tr>`).join('');
-
-        document.getElementById('count-site').innerText = DB.sites.length;
-        document.getElementById('count-sv').innerText = DB.servers.length;
-        document.getElementById('count-dm').innerText = DB.domains.length;
-
-        document.getElementById('s-sv-sel').innerHTML = '<option value="">なし</option>' + DB.servers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        document.getElementById('site-tbody').innerHTML = DB.sites.map(s => `
+            <tr onclick="openDetail('site', ${s.id})">
+                <td>${s.url}</td><td>${s.name}</td><td>${s.short || ''}</td><td>${s.note || ''}</td>
+            </tr>
+        `).join('');
+        document.getElementById('cnt-s').innerText = DB.sites.length;
     }
 
     function openDetail(type, id) {
         const item = DB[type + 's'].find(x => x.id === id);
-        if(!item) return;
-        document.getElementById('modal-title').innerText = (item.name || item.url) + ' の詳細情報';
+        document.getElementById('modal-title').innerText = (item.name || item.url) + ' の詳細';
         let html = '';
-        for (let key in item) {
-            if(key === 'id' || key === 'date') continue;
-            let labelName = labels[key] || key;
-            html += `<div class="detail-item"><div class="detail-label">${labelName}</div><div class="detail-value">${item[key] || '---'}</div></div>`;
+        for(let key in fieldLabels) {
+            html += `<div class="detail-label">${fieldLabels[key]}</div><div class="detail-val">${item[key] || '---'}</div>`;
         }
         document.getElementById('modal-body').innerHTML = html;
+        document.getElementById('modal-edit-btn').onclick = () => { closeModal(); openEntry('site', id); };
         document.getElementById('detail-modal').style.display = 'flex';
     }
 
