@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>ALUMINA Search Edition</title>
+    <title>ALUMINA Full Spec Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; }
+        :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; --danger: #eb5757; }
         * { box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: #f8f9fa; color: var(--text); height: 100vh; display: flex; overflow: hidden; }
         
@@ -29,19 +29,30 @@
         .page { padding: 25px; overflow-y: auto; display: none; height: 100%; }
         .active-page { display: block; }
 
-        /* 検索窓 */
-        .search-container { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
-        .search-input { flex-grow: 1; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+        /* 検索・ツールバー */
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+        .search-input { flex-grow: 1; padding: 10px 15px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; outline: none; transition: border 0.2s; }
+        .search-input:focus { border-color: var(--accent); }
 
-        /* カード・テーブル */
+        /* カード・フォーム */
         .card { background: white; padding: 25px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
+        .section-title { font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; color: #333; border-bottom: 2px solid var(--accent); display: inline-block; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 12px; }
+        .form-group { flex: 1; }
+        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; color: #666; }
+        input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+        
+        /* テーブル */
+        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         th { background: #f1f3f5; padding: 10px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid var(--border); }
-        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         tr:hover { background: #f9fbff; cursor: pointer; }
         
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
         .btn-primary { background: var(--accent); color: #fff; }
+        .btn-edit { background: #28a745; color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn:hover { opacity: 0.8; }
 
         /* モーダル */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
@@ -49,13 +60,32 @@
         .detail-grid { display: grid; grid-template-columns: 180px 1fr; border-top: 1px solid #eee; }
         .detail-label { background: #f8f9fa; padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
         .detail-val { padding: 10px; font-size: 13px; border-bottom: 1px solid #eee; word-break: break-all; }
+        .tag-chip { background: #e2f0ff; color: #007bff; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-right: 4px; }
     </style>
 </head>
 <body>
 
-<div id="login-overlay"><div class="login-card"><h2>ALUMINA</h2><input type="password" id="master-key" placeholder="マスターパスワード"><button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="unlock()">ログイン</button></div></div>
+<div id="login-overlay">
+    <div class="login-card">
+        <h2 style="color:var(--accent)">ALUMINA</h2>
+        <input type="password" id="master-key" placeholder="マスターパスワード">
+        <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="unlock()">ログイン</button>
+    </div>
+</div>
 
-<div id="detail-modal" class="modal"><div class="modal-content"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;"><h2 id="modal-title" style="margin:0; color:var(--accent);">詳細</h2><div><button id="modal-edit-btn" class="btn btn-primary" style="background:#28a745; margin-right:5px;">編集</button><button class="btn" onclick="closeModal()">閉じる</button></div></div><div id="modal-body" class="detail-grid"></div></div></div>
+<div id="detail-modal" class="modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 id="modal-title" style="margin:0; color:var(--accent);">詳細情報</h2>
+            <div style="display:flex; gap:8px;">
+                <button id="modal-edit-btn" class="btn btn-edit">編集</button>
+                <button id="modal-delete-btn" class="btn btn-danger">削除</button>
+                <button class="btn" onclick="closeModal()">閉じる</button>
+            </div>
+        </div>
+        <div id="modal-body" class="detail-grid"></div>
+    </div>
+</div>
 
 <div class="sidebar">
     <div class="sidebar-brand">▲ ALUMINA</div>
@@ -66,13 +96,14 @@
     <div class="sidebar-item" id="m-sv" onclick="showPage('sv-page')">サーバー</div>
     <div class="sidebar-item" id="m-rg" onclick="showPage('rg-page')">レジストラ</div>
     <div class="sidebar-item" id="m-dm" onclick="showPage('dm-page')">ドメイン</div>
+    <div style="margin-top:40px; border-top:1px solid #ddd;" class="sidebar-item" onclick="location.reload()">ログアウト</div>
 </div>
 
 <div class="main-content">
-    <header><div id="page-title">ダッシュボード</div><div>竹川 様</div></header>
+    <header><div id="page-title">ダッシュボード</div><div style="font-size:12px; color:#888;">管理者：竹川 様</div></header>
 
     <div id="dash-page" class="page active-page">
-        <div style="display:flex; gap:20px;">
+        <div class="form-row">
             <div class="card" style="flex:1; text-align:center;"><h3>サイト</h3><div id="cnt-s" style="font-size:32px; font-weight:bold;">0</div></div>
             <div class="card" style="flex:1; text-align:center;"><h3>サーバー</h3><div id="cnt-v" style="font-size:32px; font-weight:bold;">0</div></div>
             <div class="card" style="flex:1; text-align:center;"><h3>ドメイン</h3><div id="cnt-d" style="font-size:32px; font-weight:bold;">0</div></div>
@@ -80,65 +111,75 @@
     </div>
 
     <div id="site-page" class="page">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="サイト名、URL、備考で検索..." onkeyup="filterTable('site-tbody', this.value)">
+        <div class="toolbar">
             <button class="btn btn-primary" onclick="openEntry('site')">+ 新規作成</button>
+            <input type="text" class="search-input" id="search-site" placeholder="URL、サイト名、タグ、備考で検索..." oninput="refreshUI()">
         </div>
-        <table><thead><tr><th>URL</th><th>サイト名</th><th>短縮名</th><th>備考</th></tr></thead><tbody id="site-tbody"></tbody></table>
+        <table>
+            <thead><tr><th>URL</th><th>サイト名</th><th>短縮名</th><th>備考</th></tr></thead>
+            <tbody id="site-tbody"></tbody>
+        </table>
+    </div>
+
+    <div id="form-page" class="page">
+        <div class="card">
+            <h2 id="form-title">情報登録</h2>
+            <input type="hidden" id="f-id">
+            <input type="hidden" id="f-type">
+            
+            <div id="form-fields"></div><div style="margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveData()">保存する</button>
+                <button class="btn" onclick="goBack()">戻る</button>
+            </div>
+        </div>
     </div>
 
     <div id="sv-page" class="page">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="サーバー名、会社名で検索..." onkeyup="filterTable('sv-tbody', this.value)">
-            <button class="btn btn-primary" onclick="openEntry('server')">+ 新規作成</button>
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openEntry('server')">+ サーバー追加</button>
+            <input type="text" class="search-input" id="search-sv" placeholder="サーバー名、会社名で検索..." oninput="refreshUI()">
         </div>
-        <table><thead><tr><th>サーバー名</th><th>会社名</th><th>プラン</th><th>ユーザーID</th></tr></thead><tbody id="sv-tbody"></tbody></table>
+        <table><thead><tr><th>サーバー名</th><th>会社名</th><th>ログインID</th><th>備考</th></tr></thead><tbody id="sv-tbody"></tbody></table>
     </div>
 
     <div id="rg-page" class="page">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="レジストラ名で検索..." onkeyup="filterTable('rg-tbody', this.value)">
-            <button class="btn btn-primary" onclick="openEntry('registrar')">+ 新規作成</button>
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openEntry('registrar')">+ レジストラ追加</button>
+            <input type="text" class="search-input" id="search-rg" placeholder="レジストラ名、ユーザーで検索..." oninput="refreshUI()">
         </div>
-        <table><thead><tr><th>名前</th><th>ログインURL</th><th>ID</th></tr></thead><tbody id="rg-tbody"></tbody></table>
+        <table><thead><tr><th>名前</th><th>URL</th><th>ユーザー</th></tr></thead><tbody id="rg-tbody"></tbody></table>
     </div>
 
     <div id="dm-page" class="page">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="ドメイン名で検索..." onkeyup="filterTable('dm-tbody', this.value)">
-            <button class="btn btn-primary" onclick="openEntry('domain')">+ 新規作成</button>
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openEntry('domain')">+ ドメイン追加</button>
+            <input type="text" class="search-input" id="search-dm" placeholder="ドメイン名、期限で検索..." oninput="refreshUI()">
         </div>
-        <table><thead><tr><th>ドメイン名</th><th>レジストラ</th><th>期限</th></tr></thead><tbody id="dm-tbody"></tbody></table>
-    </div>
-
-    <div id="site-form-page" class="page">
-        <div class="card">
-            <h2 id="form-title">サイト登録</h2>
-            <div id="dynamic-form"></div>
-            <div style="margin-top:20px;">
-                <button class="btn btn-primary" id="save-btn">保存する</button>
-                <button class="btn" onclick="showPage('site-page')">戻る</button>
-            </div>
-        </div>
+        <table><thead><tr><th>ドメイン名</th><th>有効期限</th></tr></thead><tbody id="dm-tbody"></tbody></table>
     </div>
 </div>
 
 <script>
     let masterKey = "";
     let DB = { sites: [], servers: [], registrars: [], domains: [] };
-    const fields = {
-        site: ['url', 'name', 'short', 'tags', 'note', 'sv_link', 'ftp_h', 'ftp_u', 'ftp_p', 'ftp_path', 'wp_url', 'wp_u', 'wp_p', 'db_url', 'db_u', 'db_p'],
-        server: ['name', 'company', 'plan', 'user', 'pass', 'note'],
-        registrar: ['name', 'url', 'user', 'pass', 'note'],
-        domain: ['name', 'reg_link', 'end_date', 'note']
+
+    const labels = {
+        site: { url: 'URL', name: 'サイト名', short: '短縮名', tags: 'タグ', note: '備考', ftp_h: 'FTPホスト', ftp_u: 'FTPユーザー', ftp_p: 'FTPパス', wp_url: 'WPログインURL', wp_u: 'WP ID', wp_p: 'WP PASS', db_url: 'DB URL', db_u: 'DB ID', db_p: 'DB PASS' },
+        server: { name: 'サーバー名', company: '会社名', user: 'ログインID', pass: 'パスワード', note: '備考' },
+        registrar: { name: 'レジストラ名', url: 'URL', user: 'ユーザーID', pass: 'パスワード' },
+        domain: { name: 'ドメイン名', end: '有効期限', note: '備考' }
     };
-    const labels = { url:'URL', name:'名前', short:'短縮名', tags:'タグ', note:'備考', sv_link:'紐付けサーバー', ftp_h:'FTPホスト', ftp_u:'FTP ID', ftp_p:'FTP PASS', ftp_path:'FTPパス', wp_url:'WP URL', wp_u:'WP ID', wp_p:'WP PASS', db_url:'DB URL', db_u:'DB ID', db_p:'DB PASS', company:'会社名', plan:'プラン', user:'ログインID', pass:'パスワード', reg_link:'レジストラ', end_date:'期限' };
 
     function unlock() {
         masterKey = document.getElementById('master-key').value;
         if(!masterKey) return;
         const data = localStorage.getItem('alumina_vFinal_Search');
-        if(data) { try { DB = JSON.parse(CryptoJS.AES.decrypt(data, masterKey).toString(CryptoJS.enc.Utf8)); } catch(e) { alert("NG"); return; } }
+        if(data) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(data, masterKey);
+                DB = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            } catch(e) { alert("パスワードが違います"); return; }
+        }
         document.getElementById('login-overlay').style.display = 'none';
         refreshUI();
     }
@@ -147,49 +188,73 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active-page');
-        const mId = 'm-' + id.split('-')[0];
-        if(document.getElementById(mId)) document.getElementById(mId).classList.add('active');
+        const menuId = 'm-' + id.split('-')[0];
+        if(document.getElementById(menuId)) document.getElementById(menuId).classList.add('active');
+        document.getElementById('page-title').innerText = document.getElementById(menuId)?.innerText || '管理';
     }
 
     function openEntry(type, id = null) {
-        const container = document.getElementById('dynamic-form');
-        container.innerHTML = fields[type].map(f => `
-            <div style="margin-bottom:10px;">
-                <label style="font-size:11px; font-weight:bold; color:#666;">${labels[f] || f}</label>
-                ${f === 'note' ? `<textarea id="f-${f}" rows="2"></textarea>` : `<input type="${f.includes('pass')||f.includes('p')&&f!=='plan'?'password':'text'}" id="f-${f}">`}
-            </div>
-        `).join('');
-        
         const item = id ? DB[type + 's'].find(x => x.id === id) : null;
-        if(item) fields[type].forEach(f => document.getElementById('f-' + f).value = item[f] || '');
+        document.getElementById('f-type').value = type;
+        document.getElementById('f-id').value = id || '';
+        document.getElementById('form-title').innerText = (id ? '編集: ' : '新規登録: ') + type.toUpperCase();
         
-        document.getElementById('form-title').innerText = (id ? '編集' : '登録');
-        document.getElementById('save-btn').onclick = () => save(type, id);
-        showPage('site-form-page');
+        let html = '';
+        for(let key in labels[type]) {
+            let val = item ? item[key] : '';
+            let fieldType = (key.includes('pass') || key.includes('_p')) ? 'password' : 'text';
+            html += `<div class="form-group"><label>${labels[type][key]}</label><input type="${fieldType}" id="f-${key}" value="${val}"></div>`;
+        }
+        document.getElementById('form-fields').innerHTML = html;
+        showPage('form-page');
     }
 
-    function save(type, id) {
-        const item = { id: id || Date.now() };
-        fields[type].forEach(f => item[f] = document.getElementById('f-' + f).value);
-        if(id) { const idx = DB[type+'s'].findIndex(x => x.id === id); DB[type+'s'][idx] = item; }
-        else { DB[type+'s'].push(item); }
+    function saveData() {
+        const type = document.getElementById('f-type').value;
+        const id = document.getElementById('f-id').value;
+        let item = { id: id ? parseInt(id) : Date.now() };
+        
+        for(let key in labels[type]) {
+            item[key] = document.getElementById('f-' + key).value;
+        }
+
+        if(id) {
+            const idx = DB[type + 's'].findIndex(x => x.id === parseInt(id));
+            DB[type + 's'][idx] = item;
+        } else {
+            DB[type + 's'].push(item);
+        }
+
         localStorage.setItem('alumina_vFinal_Search', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
-        alert("保存完了"); refreshUI(); showPage(type + '-page');
+        alert("保存しました");
+        refreshUI();
+        showPage(type.substring(0,2) + '-page');
     }
 
     function refreshUI() {
-        const render = (type, target, cols) => {
-            document.getElementById(target).innerHTML = DB[type+'s'].map(item => `
-                <tr onclick="openDetail('${type}', ${item.id})">
-                    ${cols.map(c => `<td>${item[c] || ''}</td>`).join('')}
-                </tr>
-            `).join('');
-        };
-        render('site', 'site-tbody', ['url', 'name', 'short', 'note']);
-        render('server', 'sv-tbody', ['name', 'company', 'plan', 'user']);
-        render('registrar', 'rg-tbody', ['name', 'url', 'user']);
-        render('domain', 'dm-tbody', ['name', 'reg_link', 'end_date']);
-        
+        // サイト一覧のフィルタリング
+        const sQuery = document.getElementById('search-site').value.toLowerCase();
+        document.getElementById('site-tbody').innerHTML = DB.sites
+            .filter(s => (s.url+s.name+s.tags+s.note).toLowerCase().includes(sQuery))
+            .map(s => `<tr onclick="openDetail('site', ${s.id})"><td>${s.url}</td><td>${s.name}</td><td>${s.short || ''}</td><td>${s.note || ''}</td></tr>`).join('');
+
+        // サーバー一覧のフィルタリング
+        const vQuery = document.getElementById('search-sv').value.toLowerCase();
+        document.getElementById('sv-tbody').innerHTML = DB.servers
+            .filter(v => (v.name+v.company+v.note).toLowerCase().includes(vQuery))
+            .map(v => `<tr onclick="openDetail('server', ${v.id})"><td>${v.name}</td><td>${v.company}</td><td>${v.user}</td><td>${v.note || ''}</td></tr>`).join('');
+
+        // レジストラ、ドメインも同様
+        const rQuery = document.getElementById('search-rg').value.toLowerCase();
+        document.getElementById('rg-tbody').innerHTML = DB.registrars
+            .filter(r => (r.name+r.user).toLowerCase().includes(rQuery))
+            .map(r => `<tr onclick="openDetail('registrar', ${r.id})"><td>${r.name}</td><td>${r.url}</td><td>${r.user}</td></tr>`).join('');
+
+        const dQuery = document.getElementById('search-dm').value.toLowerCase();
+        document.getElementById('dm-tbody').innerHTML = DB.domains
+            .filter(d => (d.name+d.end).toLowerCase().includes(dQuery))
+            .map(d => `<tr onclick="openDetail('domain', ${d.id})"><td>${d.name}</td><td>${d.end}</td></tr>`).join('');
+
         document.getElementById('cnt-s').innerText = DB.sites.length;
         document.getElementById('cnt-v').innerText = DB.servers.length;
         document.getElementById('cnt-d').innerText = DB.domains.length;
@@ -197,23 +262,27 @@
 
     function openDetail(type, id) {
         const item = DB[type + 's'].find(x => x.id === id);
-        document.getElementById('modal-title').innerText = labels[type] || '詳細';
-        document.getElementById('modal-body').innerHTML = fields[type].map(f => `
-            <div class="detail-label">${labels[f] || f}</div>
-            <div class="detail-val">${item[f] || '---'}</div>
-        `).join('');
+        document.getElementById('modal-title').innerText = (item.name || item.url) + ' の詳細';
+        let html = '';
+        for(let key in labels[type]) {
+            html += `<div class="detail-label">${labels[type][key]}</div><div class="detail-val">${item[key] || '---'}</div>`;
+        }
+        document.getElementById('modal-body').innerHTML = html;
         document.getElementById('modal-edit-btn').onclick = () => { closeModal(); openEntry(type, id); };
+        document.getElementById('modal-delete-btn').onclick = () => { deleteData(type, id); };
         document.getElementById('detail-modal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
-
-    function filterTable(tbodyId, query) {
-        const rows = document.querySelectorAll(`#${tbodyId} tr`);
-        rows.forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
-        });
+    function deleteData(type, id) {
+        if(!confirm("本当にこのデータを削除しますか？")) return;
+        DB[type + 's'] = DB[type + 's'].filter(x => x.id !== id);
+        localStorage.setItem('alumina_vFinal_Search', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
+        closeModal();
+        refreshUI();
     }
+
+    function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
+    function goBack() { showPage(document.getElementById('f-type').value.substring(0,2) + '-page'); }
 </script>
 </body>
 </html>
