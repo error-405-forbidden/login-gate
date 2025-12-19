@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>ALUMINA Private Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        :root { --sidebar-bg: #eef1f6; --header-bg: #fff; --accent: #2383e2; --text: #37352f; --border: #edece9; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f7f9; color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+        
+        /* ログイン画面 */
+        #login-overlay { position: fixed; inset: 0; background: #f4f7f9; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 350px; }
+        
+        /* メインレイアウト */
+        .sidebar { width: 200px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
+        .sidebar-item { padding: 12px 20px; font-size: 14px; cursor: pointer; color: #666; transition: 0.2s; }
+        .sidebar-item:hover, .active { background: #fff; color: var(--accent); font-weight: bold; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { height: 50px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; font-size: 13px; }
+        
+        /* コンテンツエリア */
+        .page { padding: 20px; overflow-y: auto; display: none; height: 100%; }
+        .active-page { display: block; }
+        .card { background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 20px; margin-bottom: 20px; }
+        h2 { margin: 0 0 20px 0; font-size: 18px; }
+        
+        /* フォーム & テーブル */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; background: #fbfbfa; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-primary { background: var(--accent); color: #fff; }
+        
+        table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+        th { background: #f8f9fb; border: 1px solid var(--border); padding: 10px; text-align: left; color: #888; }
+        td { border: 1px solid var(--border); padding: 10px; vertical-align: top; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; margin-right: 4px; background: #e2f0ff; color: #2383e2; }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="login-card">
+        <h3>ALUMINA Private</h3>
+        <p style="font-size: 12px; color: #888;">マスターパスワードを入力してください</p>
+        <input type="password" id="master-key" placeholder="Password">
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="unlock()">ログイン</button>
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-item active" onclick="showPage('list-page')">サイト一覧</div>
+    <div class="sidebar-item" onclick="showPage('add-page')">新規登録</div>
+    <div class="sidebar-item" onclick="logout()">ログアウト</div>
+</div>
+
+<div class="main-content">
+    <header>
+        <div>サイト一覧</div>
+        <div id="user-display">竹川 静香</div>
+    </header>
+
+    <div id="list-page" class="page active-page">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <button class="btn btn-primary" onclick="showPage('add-page')">+ 新規作成</button>
+            <input type="text" id="search" placeholder="検索..." style="width: 200px;">
+        </div>
+        <div class="card" style="padding: 0;">
+            <table>
+                <thead>
+                    <tr><th>URL</th><th>サイト名</th><th>タグ</th><th>最終操作</th></tr>
+                </thead>
+                <tbody id="site-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="add-page" class="page">
+        <div class="card">
+            <h2>サイト情報登録</h2>
+            <div class="form-group">
+                <label>URL (必須)</label>
+                <input type="text" id="f-url">
+            </div>
+            <div class="form-group">
+                <label>サイト名</label>
+                <input type="text" id="f-name">
+            </div>
+            <div class="form-group">
+                <label>タグ (カンマ区切り)</label>
+                <input type="text" id="f-tags" placeholder="10月, HTML, メイン">
+            </div>
+            <div class="form-group">
+                <label>FTP情報 / 備考</label>
+                <textarea id="f-note" rows="4"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveSite()">登録する</button>
+            <button class="btn" onclick="showPage('list-page')">キャンセル</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let masterPassword = "";
+    let siteDatabase = [];
+
+    // ログイン処理
+    function unlock() {
+        const pass = document.getElementById('master-key').value;
+        if(!pass) return alert("パスワードを入力してください");
+        
+        masterPassword = pass;
+        loadDatabase();
+        document.getElementById('login-overlay').style.display = 'none';
+        renderTable();
+    }
+
+    // ページ切り替え
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+    }
+
+    // データの読み込みと復号
+    function loadDatabase() {
+        const encryptedData = localStorage.getItem('alumina_vault');
+        if(encryptedData) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(encryptedData, masterPassword);
+                const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                if(!decrypted && encryptedData) throw new Error();
+                siteDatabase = decrypted ? JSON.parse(decrypted) : [];
+            } catch(e) {
+                alert("復号に失敗しました。パスワードが正しくない可能性があります。");
+                location.reload();
+            }
+        }
+    }
+
+    // データの暗号化と保存
+    function saveDatabase() {
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(siteDatabase), masterPassword).toString();
+        localStorage.setItem('alumina_vault', encrypted);
+    }
+
+    // サイト登録
+    function saveSite() {
+        const newSite = {
+            id: Date.now(),
+            url: document.getElementById('f-url').value,
+            name: document.getElementById('f-name').value,
+            tags: document.getElementById('f-tags').value.split(',').map(t => t.trim()),
+            note: document.getElementById('f-note').value,
+            date: new Date().toLocaleDateString()
+        };
+
+        if(!newSite.url) return alert("URLは必須です");
+        
+        siteDatabase.push(newSite);
+        saveDatabase();
+        alert("保存しました");
+        showPage('list-page');
+        renderTable();
+        
+        // フォームクリア
+        document.getElementById('f-url').value = '';
+        document.getElementById('f-name').value = '';
+        document.getElementById('f-tags').value = '';
+        document.getElementById('f-note').value = '';
+    }
+
+    // テーブル描画
+    function renderTable() {
+        const tbody = document.getElementById('site-table-body');
+        tbody.innerHTML = '';
+        
+        siteDatabase.forEach(site => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><a href="${site.url}" target="_blank" style="color: var(--accent); text-decoration: none;">${site.url}</a></td>
+                <td>${site.name}</td>
+                <td>${site.tags.map(t => `<span class="tag">${t}</span>`).join('')}</td>
+                <td style="color: #999; font-size: 11px;">${site.date}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function logout() {
+        location.reload();
+    }
+</script>
+</body>
+</html>
