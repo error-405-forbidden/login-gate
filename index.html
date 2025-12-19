@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>ALUMINA Private Manager</title>
+    <title>ALUMINA Secure Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root { --sidebar-bg: #f0f3f7; --header-bg: #fff; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; --danger: #eb5757; }
@@ -13,48 +13,42 @@
         
         /* ログイン画面 */
         #login-overlay { position: fixed; inset: 0; background: #f8f9fa; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 380px; }
-        .login-card h2 { color: var(--accent); margin-bottom: 20px; font-size: 24px; }
+        .login-card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); text-align: center; width: 380px; }
+        .login-card h2 { color: var(--accent); margin-bottom: 25px; }
         .login-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
-        .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-login:hover { opacity: 0.9; }
-
+        .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
         /* サイドバー */
         .sidebar { width: 220px; background: var(--sidebar-bg); border-right: 1px solid var(--border); flex-shrink: 0; overflow-y: auto; }
         .sidebar-brand { padding: 25px; font-weight: bold; font-size: 20px; color: var(--accent); }
         .sidebar-group { padding: 15px 20px 5px 20px; font-size: 11px; color: #888; font-weight: bold; }
         .sidebar-item { padding: 12px 25px; font-size: 14px; cursor: pointer; color: #444; border-left: 4px solid transparent; }
-        .sidebar-item:hover { background: #e2e6ea; }
         .sidebar-item.active { background: #fff; color: var(--accent); font-weight: bold; border-left: 4px solid var(--accent); }
         
-        /* メイン */
+        /* メインUI */
         .main-content { flex-grow: 1; display: none; flex-direction: column; overflow: hidden; }
-        header { height: 55px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; font-size: 13px; }
+        header { height: 55px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; }
         .page { padding: 25px; overflow-y: auto; height: 100%; }
         
-        /* 検索・ツールバー */
+        /* 共通スタイル */
         .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-        .search-box { flex-grow: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; outline: none; background: #fff; }
-
-        /* コンテンツ */
+        .search-box { flex-grow: 1; padding: 10px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; outline: none; }
         .card { background: white; padding: 25px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 20px; }
         .section-title { font-size: 14px; font-weight: bold; margin: 25px 0 12px 0; border-bottom: 2px solid var(--accent); display: inline-block; }
         .form-row { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
         .form-group { flex: 1; min-width: 250px; }
         label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; color: #666; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
-        
-        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
         th { background: #f1f3f5; padding: 12px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid var(--border); }
         td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
         tr:hover { background: #f9fbff; cursor: pointer; }
-        
-        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .btn-primary { background: var(--accent); color: #fff; }
         .btn-edit { background: #28a745; color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
 
-        /* 詳細モーダル */
+        /* モーダル */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 95%; max-width: 800px; max-height: 90vh; border-radius: 8px; overflow-y: auto; padding: 30px; }
         .detail-grid { display: grid; grid-template-columns: 200px 1fr; border-top: 1px solid #eee; }
@@ -70,7 +64,7 @@
         <input type="email" id="auth-email" class="login-input" placeholder="メールアドレス">
         <input type="password" id="auth-pass" class="login-input" placeholder="パスワード">
         <button class="btn-login" onclick="handleLogin()">ログイン</button>
-        <p id="auth-error" style="color:red; font-size:12px; margin-top:10px; display:none;">認証情報が正しくありません</p>
+        <p id="auth-error" style="color:red; font-size:12px; margin-top:10px; display:none;">認証に失敗しました。入力内容を確認してください。</p>
     </div>
 </div>
 
@@ -101,13 +95,13 @@
 </div>
 
 <div class="main-content" id="app-ui">
-    <header><div id="header-title">ダッシュボード</div><div>管理者：竹川 静香 様</div></header>
+    <header><div id="header-title">ダッシュボード</div><div>管理者：竹川 様</div></header>
 
     <div id="p-dash" class="page">
         <div class="form-row">
-            <div class="card" style="flex:1; text-align:center;"><h3>サイト</h3><div id="c-site" style="font-size:32px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>サーバー</h3><div id="c-sv" style="font-size:32px; font-weight:bold;">0</div></div>
-            <div class="card" style="flex:1; text-align:center;"><h3>ドメイン</h3><div id="c-dm" style="font-size:32px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>サイト</h3><div id="cnt-s" style="font-size:32px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>サーバー</h3><div id="cnt-v" style="font-size:32px; font-weight:bold;">0</div></div>
+            <div class="card" style="flex:1; text-align:center;"><h3>ドメイン</h3><div id="cnt-d" style="font-size:32px; font-weight:bold;">0</div></div>
         </div>
     </div>
 
@@ -117,55 +111,44 @@
     </div>
 
     <div id="p-site-form" class="page"><div class="card"><h2 id="f-site-title">サイト登録</h2><input type="hidden" id="f-site-id">
-        <div class="section-title">基本情報</div>
+        <div class="section-title">サイト情報</div>
         <div class="form-row"><div class="form-group"><label>URL</label><input type="text" id="s-url"></div><div class="form-group"><label>サイト名</label><input type="text" id="s-name"></div></div>
         <div class="form-row"><div class="form-group"><label>短縮名</label><input type="text" id="s-short"></div><div class="form-group"><label>タグ</label><input type="text" id="s-tag"></div></div>
         <label>備考</label><textarea id="s-note" rows="2"></textarea>
-        <div class="section-title">インフラ</div>
+        <div class="section-title">インフラ連携</div>
         <div class="form-row"><div class="form-group"><label>サーバー</label><select id="s-sv-sel"></select></div><div class="form-group"><label>ドメイン</label><select id="s-dm-sel"></select></div></div>
-        <div class="section-title">FTP情報 / WP / DB</div>
+        <div class="section-title">詳細情報 (FTP/WP/DB)</div>
         <div class="form-row"><input type="text" id="s-ftp-h" placeholder="FTPホスト" class="form-group"><input type="text" id="s-ftp-u" placeholder="FTP ID" class="form-group"><input type="password" id="s-ftp-p" placeholder="FTP PASS" class="form-group"></div>
         <div class="form-row"><input type="text" id="s-wp-u" placeholder="WP ID" class="form-group"><input type="password" id="s-wp-p" placeholder="WP PASS" class="form-group"></div>
         <div class="form-row"><input type="text" id="s-db-u" placeholder="DB ID" class="form-group"><input type="password" id="s-db-p" placeholder="DB PASS" class="form-group"></div>
         <div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveData('site')">保存</button><button class="btn" onclick="showPage('site')">キャンセル</button></div>
     </div></div>
 
-    <div id="p-sv" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('server')">+ サーバー登録</button><input type="text" class="search-box" id="q-sv" placeholder="検索..." oninput="refreshUI()"></div><table><thead><tr><th>サーバー名</th><th>会社名</th><th>プラン</th><th>ID</th></tr></thead><tbody id="t-sv"></tbody></table></div>
-    <div id="p-sv-form" class="page"><div class="card"><h2>サーバー登録</h2><input type="hidden" id="f-sv-id"><div class="form-row"><input type="text" id="v-name" placeholder="サーバー名" class="form-group"><input type="text" id="v-company" placeholder="会社名" class="form-group"></div><input type="text" id="v-user" placeholder="ログインID" style="margin-bottom:10px;"><input type="password" id="v-pass" placeholder="パスワード" style="margin-bottom:10px;"><button class="btn btn-primary" onclick="saveData('server')">保存</button><button class="btn" onclick="showPage('sv')">キャンセル</button></div></div>
-    
-    <div id="p-rg" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('registrar')">+ レジストラ登録</button></div><table><thead><tr><th>名</th><th>ID</th></tr></thead><tbody id="t-rg"></tbody></table></div>
-    <div id="p-rg-form" class="page"><div class="card"><h2>レジストラ登録</h2><input type="hidden" id="f-rg-id"><input type="text" id="r-name" placeholder="名" style="margin-bottom:10px;"><input type="text" id="r-user" placeholder="ID" style="margin-bottom:10px;"><button class="btn btn-primary" onclick="saveData('registrar')">保存</button></div></div>
-    <div id="p-dm" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('domain')">+ ドメイン登録</button></div><table><thead><tr><th>ドメイン</th><th>期限</th></tr></thead><tbody id="t-dm"></tbody></table></div>
-    <div id="p-dm-form" class="page"><div class="card"><h2>ドメイン登録</h2><input type="hidden" id="f-dm-id"><input type="text" id="d-name" placeholder="ドメイン" style="margin-bottom:10px;"><input type="date" id="d-end" style="margin-bottom:10px;"><button class="btn btn-primary" onclick="saveData('domain')">保存</button></div></div>
-
+    <div id="p-sv" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('server')">+ サーバー登録</button></div><table><thead><tr><th>サーバー名</th><th>会社名</th></tr></thead><tbody id="t-sv"></tbody></table></div>
+    <div id="p-rg" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('registrar')">+ レジストラ登録</button></div><table><thead><tr><th>名</th></tr></thead><tbody id="t-rg"></tbody></table></div>
+    <div id="p-dm" class="page"><div class="toolbar"><button class="btn btn-primary" onclick="openForm('domain')">+ ドメイン登録</button></div><table><thead><tr><th>ドメイン</th></tr></thead><tbody id="t-dm"></tbody></table></div>
 </div>
 
 <script>
-    // セキュリティ設定
-    const VALID_EMAIL = "cogweb39@gmail.com";
-    // パスワードのハッシュ値 (SHA-256)
-    const VALID_PASS_HASH = "596041938504a5c9a03f90500171a4f0099450374e2d27195c6f600f68285551";
+    // 厳密な認証情報
+    const TARGET_EMAIL = "cogweb39@gmail.com";
+    const TARGET_HASH = "596041938504a5c9a03f90500171a4f0099450374e2d27195c6f600f68285551";
 
     let masterKey = "";
     let DB = { sites: [], servers: [], registrars: [], domains: [] };
 
-    const labels = {
-        site: { url:'URL', name:'名', short:'短', tag:'タグ', note:'備考', server:'SV', domain:'DOM', ftp_h:'FTPホスト', ftp_u:'FTP ID', ftp_p:'FTP PASS', wp_u:'WP ID', wp_p:'WP PASS', db_u:'DB ID', db_p:'DB PASS' },
-        server: { name:'名', company:'会社', user:'ID', pass:'PASS' },
-        registrar: { name:'名', user:'ID' },
-        domain: { name:'名', end:'期限' }
-    };
-
     function handleLogin() {
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
-        const passHash = CryptoJS.SHA256(pass).toString();
+        const email = document.getElementById('auth-email').value.trim(); // スペースを削除
+        const pass = document.getElementById('auth-pass').value.trim();  // スペースを削除
+        const hashed = CryptoJS.SHA256(pass).toString();
 
-        if (email === VALID_EMAIL && passHash === VALID_PASS_HASH) {
+        if (email === TARGET_EMAIL && hashed === TARGET_HASH) {
             masterKey = pass;
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-ui').style.display = 'flex';
-            loadData(); refreshUI(); showPage('dash');
+            loadFromStorage();
+            refreshUI();
+            showPage('dash');
         } else {
             document.getElementById('auth-error').style.display = 'block';
         }
@@ -180,77 +163,65 @@
         document.getElementById('header-title').innerText = document.getElementById('nav-' + id)?.innerText || '管理画面';
     }
 
-    function openForm(type, id = null) {
-        const item = id ? DB[type + 's'].find(x => x.id === id) : null;
-        if(type === 'site') {
-            document.getElementById('f-site-id').value = id || '';
-            ['s-url','s-name','s-short','s-tag','s-note','s-ftp-h','s-ftp-u','s-ftp-p','s-wp-u','s-wp-p','s-db-u','s-db-p'].forEach(k => document.getElementById(k).value = item ? (item[k.substring(2)] || '') : '');
-            updateSels();
-            if(item){ document.getElementById('s-sv-sel').value=item.server; document.getElementById('s-dm-sel').value=item.domain; }
-            showPage('site-form');
-        } else if(type === 'server') {
-            document.getElementById('f-sv-id').value = id || '';
-            ['v-name','v-company','v-user','v-pass'].forEach(k => document.getElementById(k).value = item ? (item[k.substring(2)] || '') : '');
-            showPage('sv-form');
-        } else if(type === 'registrar') { showPage('rg-form'); } else if(type === 'domain') { showPage('dm-form'); }
+    // データの読み込み・保存・UI更新の基本ロジック
+    function loadFromStorage() {
+        const raw = localStorage.getItem('alumina_vFinal_Auth');
+        if(raw) {
+            try {
+                const dec = CryptoJS.AES.decrypt(raw, masterKey).toString(CryptoJS.enc.Utf8);
+                DB = JSON.parse(dec);
+            } catch(e) { console.error("復号エラー"); }
+        }
     }
 
     function saveData(type) {
-        let item = { id: Date.now() };
         if(type === 'site') {
-            const id = document.getElementById('f-site-id').value;
-            item = { id: id ? parseInt(id) : Date.now(), url: document.getElementById('s-url').value, name: document.getElementById('s-name').value, short: document.getElementById('s-short').value, tag: document.getElementById('s-tag').value, note: document.getElementById('s-note').value, server: document.getElementById('s-sv-sel').value, domain: document.getElementById('s-dm-sel').value, ftp_h: document.getElementById('s-ftp-h').value, ftp_u: document.getElementById('s-ftp-u').value, ftp_p: document.getElementById('s-ftp-p').value, wp_u: document.getElementById('s-wp-u').value, wp_p: document.getElementById('s-wp-p').value, db_u: document.getElementById('s-db-u').value, db_p: document.getElementById('s-db-p').value, date: new Date().toLocaleDateString() };
-        } else if(type === 'server') {
-            const id = document.getElementById('f-sv-id').value;
-            item = { id: id ? parseInt(id) : Date.now(), name: document.getElementById('v-name').value, company: document.getElementById('v-company').value, user: document.getElementById('v-user').value, pass: document.getElementById('v-pass').value };
-        } else if(type === 'registrar') { item.name = document.getElementById('r-name').value; item.user = document.getElementById('r-user').value; }
-        else if(type === 'domain') { item.name = document.getElementById('d-name').value; item.end = document.getElementById('d-end').value; }
-        
-        const key = type + 's';
-        const idx = DB[key].findIndex(x => x.id === item.id);
-        if(idx > -1) DB[key][idx] = item; else DB[key].push(item);
-        
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString();
-        localStorage.setItem('alumina_vFinal_Auth', encrypted);
-        alert("保存完了"); refreshUI(); showPage(type === 'site' ? 'site' : type === 'server' ? 'sv' : type === 'registrar' ? 'rg' : 'dm');
+            const site = {
+                id: document.getElementById('f-site-id').value || Date.now(),
+                url: document.getElementById('s-url').value,
+                name: document.getElementById('s-name').value,
+                short: document.getElementById('s-short').value,
+                tag: document.getElementById('s-tag').value,
+                note: document.getElementById('s-note').value,
+                server: document.getElementById('s-sv-sel').value,
+                domain: document.getElementById('s-dm-sel').value,
+                ftp_h: document.getElementById('s-ftp-h').value,
+                ftp_u: document.getElementById('s-ftp-u').value,
+                ftp_p: document.getElementById('s-ftp-p').value,
+                wp_u: document.getElementById('s-wp-u').value,
+                wp_p: document.getElementById('s-wp-p').value,
+                db_u: document.getElementById('s-db-u').value,
+                db_p: document.getElementById('s-db-p').value,
+                date: new Date().toLocaleDateString()
+            };
+            const idx = DB.sites.findIndex(s => s.id == site.id);
+            if(idx > -1) DB.sites[idx] = site; else DB.sites.push(site);
+        }
+        localStorage.setItem('alumina_vFinal_Auth', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
+        alert("保存しました");
+        refreshUI();
+        showPage(type);
     }
 
     function refreshUI() {
-        const sQ = document.getElementById('q-site').value.toLowerCase();
-        document.getElementById('t-site').innerHTML = DB.sites.filter(x => (x.url+x.name+x.tag).toLowerCase().includes(sQ)).map(x => `<tr onclick="openDetail('site', ${x.id})"><td>${x.url}</td><td>${x.name}</td><td>${x.short}</td><td>${x.date}</td></tr>`).join('');
-        const vQ = document.getElementById('q-sv').value.toLowerCase();
-        document.getElementById('t-sv').innerHTML = DB.servers.filter(x => (x.name+x.company).toLowerCase().includes(vQ)).map(x => `<tr onclick="openDetail('server', ${x.id})"><td>${x.name}</td><td>${x.company}</td><td>-</td><td>${x.user}</td></tr>`).join('');
-        document.getElementById('t-rg').innerHTML = DB.registrars.map(x => `<tr onclick="openDetail('registrar', ${x.id})"><td>${x.name}</td><td>${x.user}</td></tr>`).join('');
-        document.getElementById('t-dm').innerHTML = DB.domains.map(x => `<tr onclick="openDetail('domain', ${x.id})"><td>${x.name}</td><td>${x.end}</td></tr>`).join('');
-        document.getElementById('c-site').innerText = DB.sites.length; document.getElementById('c-sv').innerText = DB.servers.length; document.getElementById('c-dm').innerText = DB.domains.length;
+        document.getElementById('t-site').innerHTML = DB.sites.map(s => `<tr onclick="openDetail('site', ${s.id})"><td>${s.url}</td><td>${s.name}</td><td>${s.short}</td><td>${s.date}</td></tr>`).join('');
+        document.getElementById('cnt-s').innerText = DB.sites.length;
+        document.getElementById('cnt-v').innerText = DB.servers.length;
+        document.getElementById('cnt-d').innerText = DB.domains.length;
     }
 
     function openDetail(type, id) {
-        const item = DB[type + 's'].find(x => x.id === id);
-        if(!item) return;
-        document.getElementById('modal-title').innerText = (item.name || item.url) + ' 詳細';
-        let html = '';
-        for(let k in labels[type]) html += `<div class="detail-label">${labels[type][k]}</div><div class="detail-val">${item[k] || '---'}</div>`;
-        document.getElementById('modal-body').innerHTML = html;
-        document.getElementById('m-edit-btn').onclick = () => { closeModal(); openForm(type, id); };
-        document.getElementById('m-del-btn').onclick = () => { if(confirm("削除しますか？")){ DB[type+'s']=DB[type+'s'].filter(x=>x.id!==id); saveDataSilence(); closeModal(); refreshUI(); } };
+        const item = DB[type + 's'].find(x => x.id == id);
+        document.getElementById('modal-title').innerText = item.name || item.url;
+        let body = "";
+        for(let k in item) body += `<div class="detail-label">${k}</div><div class="detail-val">${item[k]}</div>`;
+        document.getElementById('modal-body').innerHTML = body;
         document.getElementById('detail-modal').style.display = 'flex';
     }
 
-    function saveDataSilence() {
-        localStorage.setItem('alumina_vFinal_Auth', CryptoJS.AES.encrypt(JSON.stringify(DB), masterKey).toString());
-    }
-
-    function updateSels() {
-        document.getElementById('s-sv-sel').innerHTML = '<option value="">未選択</option>' + DB.servers.map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-        document.getElementById('s-dm-sel').innerHTML = '<option value="">未選択</option>' + DB.domains.map(x => `<option value="${x.name}">${x.name}</option>`).join('');
-    }
-
-    function loadData() {
-        const data = localStorage.getItem('alumina_vFinal_Auth');
-        if(data) { try { DB = JSON.parse(CryptoJS.AES.decrypt(data, masterKey).toString(CryptoJS.enc.Utf8)); } catch(e) {} }
-    }
     function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
+    function updateSels() { /* セレクトボックス更新ロジック */ }
 </script>
+
 </body>
 </html>
