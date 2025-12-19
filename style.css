@@ -1,0 +1,13 @@
+:root { --sidebar-bg: #f0f3f7; --accent: #4a6fa5; --text: #37352f; --border: #dee2e6; --danger: #eb5757; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, sans-serif; margin: 0; background: #f8f9fa; color: var(--text); }
+
+/* 認証画面用 */
+.auth-body { display: flex; justify-content: center; align-items: center; height: 100vh; }
+.login-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+
+/* 管理画面用レイアウト */
+.sidebar { width: 220px; height: 100vh; background: var(--sidebar-bg); position: fixed; border-right: 1px solid var(--border); }
+.main-content { margin-left: 220px; padding: 25px; width: calc(100% - 220px); }
+
+/* ...その他のテーブルやボタンのスタイルをここに集約... */
