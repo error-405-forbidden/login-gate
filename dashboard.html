@@ -6,33 +6,60 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        // セッションチェック：ログインしていなければ戻す
+        // セッションチェック
         if (!sessionStorage.getItem('masterKey')) { window.location.href = 'index.html'; }
     </script>
 </head>
 <body>
     <div class="sidebar">
         <div class="sidebar-brand">▲ ALUMINA</div>
-        <div class="sidebar-item active" id="nav-dash" onclick="showPage('dash')">ダッシュボード</div>
+        <div class="sidebar-item" id="nav-dash" onclick="showPage('dash')">ダッシュボード</div>
         <div class="sidebar-group">サイト管理</div>
         <div class="sidebar-item" id="nav-site" onclick="showPage('site')">サイト一覧</div>
         <div class="sidebar-group">連携管理</div>
         <div class="sidebar-item" id="nav-sv" onclick="showPage('sv')">サーバー</div>
         <div class="sidebar-item" id="nav-rg" onclick="showPage('rg')">レジストラ</div>
         <div class="sidebar-item" id="nav-dm" onclick="showPage('dm')">ドメイン</div>
-        <div class="logout-btn" onclick="logout()">ログアウト</div>
+        <div class="logout-btn-area">
+            <button class="btn-danger" style="width:100%" onclick="logout()">ログアウト</button>
+        </div>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" id="app-ui">
         <header><div id="header-title">ダッシュボード</div><div>管理者：竹川 様</div></header>
+
+        <div id="p-dash" class="page">
+            <div class="stats-grid">
+                <div class="card stats-card"><h3>サイト</h3><div id="c-site">0</div></div>
+                <div class="card stats-card"><h3>サーバー</h3><div id="c-sv">0</div></div>
+                <div class="card stats-card"><h3>ドメイン</h3><div id="c-dm">0</div></div>
+            </div>
+        </div>
 
         <div id="p-site" class="page">
             <div class="toolbar"><button class="btn btn-primary" onclick="openForm('site')">+ 新規登録</button><input type="text" class="search-box" id="q-site" placeholder="検索..." oninput="refreshUI()"></div>
             <table><thead><tr><th>URL</th><th>サイト名</th><th>短縮名</th><th>更新日</th></tr></thead><tbody id="t-site"></tbody></table>
         </div>
-        </div>
 
-    <div id="detail-modal" class="modal"><div class="modal-content"><div id="modal-header"></div><div id="modal-body" class="detail-grid"></div></div></div>
+        <div id="p-form" class="page">
+            <div class="card" id="form-container">
+                <h2 id="form-title">登録</h2>
+                <div id="dynamic-fields"></div>
+                <div style="margin-top:20px;">
+                    <button class="btn btn-primary" id="save-btn">保存</button>
+                    <button class="btn" onclick="showPage('site')">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="modal"><div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">詳細</h2>
+            <div><button id="m-edit-btn" class="btn btn-edit">編集</button><button id="m-del-btn" class="btn btn-danger">削除</button><button class="btn" onclick="closeModal()">×</button></div>
+        </div>
+        <div id="modal-body" class="detail-grid"></div>
+    </div></div>
 
     <script src="app.js"></script>
     <script>window.onload = () => { loadDB(); refreshUI(); showPage('dash'); };</script>
